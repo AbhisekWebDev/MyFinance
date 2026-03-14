@@ -1,0 +1,29 @@
+The Framework: Install Express to handle the server logic and routing.
+
+The Database Driver: Install Mongoose to interact with your MongoDB database.
+
+Cross-Origin Requests: Install CORS (Cross-Origin Resource Sharing). This is critical because your React frontend (running on one port) needs permission to talk to your Node backend (running on a different port).
+
+Environment Variables: Install dotenv to manage sensitive information (like your database credentials) securely, keeping them out of your main code.
+
+Development Tool: Install Nodemon as a developer dependency. This ensures your server automatically restarts whenever you save a file, so you don't have to stop and start it manually every time you make a change.
+
+
+The Server "Skeleton":
+
+Now you need to configure the server.js file to act as the brain of your backend.
+
+Import Libraries: Bring in the Express, CORS, and Dotenv libraries you just installed.
+
+Initialize the App: Create an instance of the Express application.
+
+
+Apply Middleware:
+
+Enable CORS: Allow the frontend to communicate with this server.
+
+Enable JSON Parsing: Configure Express to accept JSON data. This is essential because your React app will send salary and expense data in JSON format.
+
+Define a Test Route: Create a simple "Hello World" route (like a generic GET request to the root /) just to verify the server is running correctly later.
+
+Listen to a Port: Tell the app to listen on a specific port (usually defined in your environment variables, defaulting to something like 5000) and log a message to the console when it starts successfully.
