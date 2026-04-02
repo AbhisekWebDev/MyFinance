@@ -4,6 +4,8 @@ import Form from './components/Form'
 import ExpenseIncomeTable from './components/ExpenseIncomeTable'
 import axios from 'axios'
 
+import CategoryChart from './components/CategoryCharts'
+
 function App() {
 
   // 1. Centralized States
@@ -30,7 +32,12 @@ function App() {
 
       // NEW: Update Summary State using the backend's math
       if (sumRes.data.success) {
-          setSummary(sumRes.data.data.overview);
+          setSummary(
+            {
+              ...sumRes.data.data.overview, // Spread the overview numbers (income, expense)
+              categoryBreakdown: sumRes.data.data.categoryBreakdown // explicitly add the array!
+            }
+          )
       }
 
     } catch (err) {
@@ -61,6 +68,8 @@ function App() {
             <div className="flex flex-col gap-8">
                 {/* 4. Pass the 'summary' object to the Dashboard instead of transactions */}
                 <Dashboard summary={summary} />
+
+                <CategoryChart categoryData={summary.categoryBreakdown} />
                 
                 <Form refreshData={fetchData} />
             </div>
