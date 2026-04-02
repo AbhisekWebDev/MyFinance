@@ -20,6 +20,12 @@ const transactionSchema = new mongoose.Schema(
             required : true
         },
 
+        category: {
+            type: String,
+            required: [true, 'Please specify a category'],
+            default: 'General'
+        },
+
         // Automatically track when this happened
         createdAt : {
             type : Date,

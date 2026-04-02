@@ -5,31 +5,43 @@ import axios from 'axios'
 function Form({ refreshData }) { 
     const [text, setText] = useState('')
     const [amount, setAmount] = useState('')
+    const [category, setCategory] = useState('General')
+    const [type, setType] = useState('expense')
     const [loading, setLoading] = useState(false) 
 
     const handleSubmit = async (e) => {
         e.preventDefault(); 
 
-        if (!text || !amount) {
+        if (!text || !amount || !category) {
             alert('Please fill in all fields')
             return
         }
 
-        const numericAmount = parseFloat(amount)
+        let numericAmount = Math.abs(parseFloat(amount))
+
+        //  Automatically make it negative if they selected "expense"
+        if (type === 'expense') {
+            numericAmount = -numericAmount;
+        }
 
         const newTransaction = {
             text : text,
             amount : numericAmount,
-            type : numericAmount >= 0 ? 'income' : 'expense',
+            type : type,
+            category: category
         }
 
         try {
             setLoading(true);
 
-            await axios.post('http://localhost:5000/api/transactions', newTransaction)
+            await axios.post('http://localhost:5000/api/transactions', newTransaction, {
+                headers: { 'Authorization': 'token-admin-789' }
+            })
 
             setText('')
             setAmount('')
+            setCategory('General')
+            setType('expense')
 
             // 2. THIS IS THE MAGIC! Tell App.jsx to instantly fetch the new data
             if (refreshData) {
@@ -38,7 +50,7 @@ function Form({ refreshData }) {
 
         } catch (err) {
             console.error("Error saving transaction:", err)
-            alert("Failed to save transaction. Please try again.")
+            alert(err.response?.data?.error ||"Failed to save transaction. Please try again.")
         } finally {
             setLoading(false)
         }
@@ -59,6 +71,17 @@ function Form({ refreshData }) {
                             value={text} onChange={(e) => setText(e.target.value)} />
                     </label>
 
+                    <div className="flex gap-4">
+                        {/* Type Dropdown */}
+                        <label htmlFor="type" className="form-control w-1/3">
+                            <div className="label"><span className="label-text font-semibold">Type</span></div>
+                            <select id="type" className="select select-bordered w-full focus:select-primary"
+                                value={type} onChange={(e) => setType(e.target.value)}>
+                                <option value="expense">Expense</option>
+                                <option value="income">Income</option>
+                            </select>
+                        </label>
+
                     <label htmlFor="amount" className="form-control w-full">
                         <div className="label"><span className="label-text font-semibold">Amount</span></div>
                         <input id="amount" name="amount" type="number" placeholder="Enter amount..." 
@@ -67,6 +90,21 @@ function Form({ refreshData }) {
                         <div className="label">
                             <span className="label-text-alt text-base-content/60">Positive for Income, Negative for Expense</span>
                         </div>
+                    </label>
+                    </div>
+
+                    {/* NEW: Category Dropdown */}
+                    <label htmlFor="category" className="form-control w-full">
+                        <div className="label"><span className="label-text font-semibold">Category</span></div>
+                        <select id="category" className="select select-bordered w-full focus:select-primary"
+                            value={category} onChange={(e) => setCategory(e.target.value)}>
+                            <option value="General">General</option>
+                            <option value="Salary">Salary</option>
+                            <option value="Food & Dining">Food & Dining</option>
+                            <option value="Rent & Utilities">Rent & Utilities</option>
+                            <option value="Investments">Investments</option>
+                            <option value="Entertainment">Entertainment</option>
+                        </select>
                     </label>
 
                     <div className="card-actions justify-end mt-4">

@@ -6,38 +6,47 @@ import axios from 'axios'
 
 function App() {
 
-    // 1. Centralized State
-  const [transactions, setTransactions] = useState([])
+  // 1. Centralized States
+  const [transactions, setTransactions] = useState([]);
+  // NEW: State for our aggregated summary data
+  const [summary, setSummary] = useState({ totalIncome: 0, totalExpense: 0, netBalance: 0 });
 
-  // 2. Master function to fetch data
-  const fetchTransactions = async () => {
+  // 2. Master function to fetch ALL data
+  const fetchData = async () => {
     try {
-      const res = await axios.get('http://localhost:5000/api/transactions')
-      const fetchedData = res.data.data || res.data;
+      // Fetch 1: Get the transactions for the table
+      const txRes = await axios.get('http://localhost:5000/api/transactions', {
+          headers: { 'Authorization': 'token-admin-789' }
+      });
       
-      if (Array.isArray(fetchedData)) {
-          setTransactions(fetchedData);
-      } else {
-          setTransactions([]);
+      // Fetch 2: Get the aggregated summary for the dashboard
+      const sumRes = await axios.get('http://localhost:5000/api/transactions/summary', {
+          headers: { 'Authorization': 'token-admin-789' }
+      });
+      
+      // Update Transactions State
+      const fetchedTx = txRes.data.data || txRes.data;
+      setTransactions(Array.isArray(fetchedTx) ? fetchedTx : []);
+
+      // NEW: Update Summary State using the backend's math
+      if (sumRes.data.success) {
+          setSummary(sumRes.data.data.overview);
       }
+
     } catch (err) {
-      console.error("Error fetching transactions:", err)
+      console.error("Error fetching data:", err);
     }
   }
 
   // 3. Fetch data when app loads
   useEffect(() => {
-    fetchTransactions()
-  }, [])
+    fetchData();
+  }, []);
 
   return (
     <div className="min-h-screen bg-base-200 py-10 px-4">
-      {/* 1. Changed 'max-w-6xl' to 'max-w-7xl' to fill more of the screen 
-         2. 'mx-auto' keeps the whole app perfectly centered
-      */}
       <div className="max-w-7xl mx-auto">
         
-        {/* Header Section */}
         <div className="text-center mb-10">
             <h1 className="text-5xl font-extrabold text-base-content tracking-tight">
                 My Finance <span className="text-primary">Tracker</span>
@@ -47,29 +56,20 @@ function App() {
             </p>
         </div>
 
-        {/* Main Grid Layout 
-            - Changed to 'lg:grid-cols-2' for a perfect 50/50 split
-            - Increased 'gap-8' to 'gap-10' for better spacing
-        */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 items-start">
             
-            {/* LEFT COLUMN: Stats & Input Form */}
             <div className="flex flex-col gap-8">
-                {/* Stats Section */}
-                <Dashboard transactions={transactions} />
+                {/* 4. Pass the 'summary' object to the Dashboard instead of transactions */}
+                <Dashboard summary={summary} />
                 
-                {/* Form Section */}
-                <Form refreshData={fetchTransactions} />
+                <Form refreshData={fetchData} />
             </div>
 
-            {/* RIGHT COLUMN: Transaction History Table */}
-            {/* 'h-full' ensures this column uses available vertical space */}
             <div className="h-full">
                 <ExpenseIncomeTable transactions={transactions} />
             </div>
 
         </div>
-
       </div>
     </div>
   )

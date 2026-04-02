@@ -1,19 +1,12 @@
 import React from 'react';
 import { FaArrowUp, FaArrowDown } from 'react-icons/fa';
 
-function Dashboard({ transactions = [] }) { // accept transactions as a prop
+// 1. We now accept the 'summary' prop passed from App.jsx
+function Dashboard({ summary }) { 
 
-    // Dynamically calculate totals
-    const totalIncome = transactions
-        .filter(item => item.type === 'income')
-        .reduce((acc, item) => acc + item.amount, 0);
-
-    const totalExpense = transactions
-        .filter(item => item.type === 'expense')
-        .reduce((acc, item) => acc + Math.abs(item.amount), 0)
+  // Look mom, no math! The backend did it all.
 
   return (
-    // Grid Layout: 2 Columns
     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
 
         {/* Income Card */}
@@ -24,7 +17,8 @@ function Dashboard({ transactions = [] }) { // accept transactions as a prop
                         Total Income
                     </h2>
                     <p className="text-2xl font-black text-success">
-                        +₹{totalIncome.toLocaleString()}
+                        {/* 2. Directly display the backend's aggregated totalIncome */}
+                        +₹{(summary?.totalIncome || 0).toLocaleString()}
                     </p>
                 </div>
                 <div className="p-3 rounded-full bg-success/10">
@@ -41,7 +35,8 @@ function Dashboard({ transactions = [] }) { // accept transactions as a prop
                         Total Expenses
                     </h2>
                     <p className="text-2xl font-black text-error">
-                        -₹{totalExpense.toLocaleString()}
+                        {/* 3. Directly display the backend's aggregated totalExpense */}
+                        -₹{(summary?.totalExpense || 0).toLocaleString()}
                     </p>
                 </div>
                 <div className="p-3 rounded-full bg-error/10">
