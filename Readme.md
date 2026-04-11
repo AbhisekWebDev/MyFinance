@@ -1,4 +1,4 @@
-# Zorvyn FinTech - Finance Data Processing Backend
+# FinTech - Finance Data Processing Backend
 
 A robust, scalable backend for a financial dashboard, demonstrating professional API design, Role-Based Access Control (RBAC), and efficient data aggregation. 
 
